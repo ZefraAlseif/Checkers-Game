@@ -21,6 +21,8 @@ def main():
     game_state = Logic() 
     clock = pygame.time.Clock()
     screen.fill(pygame.Color("white"))
+    valid_moves = game_state.validMoves()
+    move_made = False # flag to determine if move is made
     loadImages()
     running = True
     sq_selected = ()
@@ -29,6 +31,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            # Handles mouse clicks
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 location = pygame.mouse.get_pos()
                 col = location[0] // SQ_SIZE
@@ -42,9 +45,16 @@ def main():
                 if len(player_clicks) == 2:
                     move = Move(player_clicks[0],player_clicks[1],game_state.board)
                     print(move.getNotation())
-                    game_state.makeMove(move)
+                    if move in valid_moves:
+                        game_state.makeMove(move)
+                        move_made = True
                     sq_selected = ()
                     player_clicks = []
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_z:
+                game_state.undoMove() # Undo move when Z is pressed
+        if move_made:
+            valid_moves = game_state.validMoves()
+            move_made = True
         drawGameState(screen,game_state)
         clock.tick(MAX_FPS)
         pygame.display.flip()
